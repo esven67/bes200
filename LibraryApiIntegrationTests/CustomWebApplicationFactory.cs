@@ -1,4 +1,5 @@
-﻿using LibraryApi.Domain;
+﻿using LibraryApi.Controllers;
+using LibraryApi.Domain;
 using LibraryApi.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -26,6 +27,14 @@ namespace LibraryApiIntegrationTests
                         d => d.ServiceType == typeof(IGenerateEmployeeIds)
                     );
 
+
+                var lookupOnCallDeveloperDescriptor = services.SingleOrDefault(
+ d => d.ServiceType == typeof(ILookupOnCallDevelopers));
+                if (lookupOnCallDeveloperDescriptor != null)
+                {
+                    services.Remove(lookupOnCallDeveloperDescriptor);
+                }
+
                 if (descriptor != null)
                 {
                     services.Remove(descriptor);
@@ -35,7 +44,9 @@ namespace LibraryApiIntegrationTests
                 {
                     services.Remove(employeeIdGeneratorDescriptor);
                 }
-                                //Add transient to use test ids
+
+                services.AddTransient<ILookupOnCallDevelopers, FakeTeamsDeveloperLookup>();
+                //Add transient to use test ids
                 services.AddTransient<IGenerateEmployeeIds, TestingEmployeeIdGenerator>();
 
                 // Add ApplicationDbContext using an in-memory database for testing.
